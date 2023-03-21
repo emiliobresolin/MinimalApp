@@ -24,9 +24,18 @@ app.MapGet("/get", (int id, ICoffeeService service) =>
 
 app.MapGet("/list", (ICoffeeService service) =>
 {
-    var coffee = service.List();
+    var coffees = service.List();
     
-    return Results.Ok(coffee); //this is how we call the list method.
+    return Results.Ok(coffees); //this is how we call the list method.
+});
+
+app.MapPut("/update", (CoffeeModel newCoffee, ICoffeeService service) =>
+{
+    var updatedCoffee = service.Update(newCoffee);
+
+    if (updatedCoffee is null) return Results.NotFound("Coffee not found");
+
+    return Results.Ok(updatedCoffee); //this is how we call the update method.
 });
 
 app.Run();
