@@ -38,4 +38,13 @@ app.MapPut("/update", (CoffeeModel newCoffee, ICoffeeService service) =>
     return Results.Ok(updatedCoffee); //this is how we call the update method.
 });
 
+app.MapDelete("/delete", (int id, ICoffeeService service) =>
+{
+    var result = service.Delete(id);
+
+    if (!result) return Results.BadRequest("Something went wrong");
+
+    return Results.Ok(result); //this is how we call the delete method.
+});
+
 app.Run();
