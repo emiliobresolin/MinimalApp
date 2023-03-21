@@ -3,48 +3,53 @@ using MinimalApp.Models;
 using MinimalApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddSingleton<ICoffeeService, CoffeeService>(); // this is about register the product service with the product interface
+builder.Services.AddSingleton<ICoffeeService, CoffeeService>();
 
 var app = builder.Build();
 
-app.MapPost("/create", (CoffeeModel coffee, ICoffeeService service) => 
+app.MapPost("/create",
+    ([FromBody]CoffeeModel coffee, ICoffeeService service) =>
     {
         var result = service.Create(coffee);
-        return Results.Ok(result); //this is how we call the create method.
+        return Results.Ok(result);
     });
 
+app.MapGet("/get",
+    (int id, ICoffeeService service) =>
+    {
+        var coffee = service.Get(id);
 
-app.MapGet("/get", (int id, ICoffeeService service) =>
-{
-    var coffee = service.Get(id);
-    if (coffee is null) return Results.NotFound("Coffee not found");
-    return Results.Ok(coffee); //this is how we call the get method.
-});
+        if (coffee is null) return Results.NotFound("Coffee not found");
 
-app.MapGet("/list", (ICoffeeService service) =>
-{
-    var coffees = service.List();
-    
-    return Results.Ok(coffees); //this is how we call the list method.
-});
+        return Results.Ok(coffee);
+    });
 
-app.MapPut("/update", (CoffeeModel newCoffee, ICoffeeService service) =>
-{
-    var updatedCoffee = service.Update(newCoffee);
+app.MapGet("/list",
+    (ICoffeeService service) =>
+    {
+        var coffees = service.List();
 
-    if (updatedCoffee is null) return Results.NotFound("Coffee not found");
+        return Results.Ok(coffees);
+    });
 
-    return Results.Ok(updatedCoffee); //this is how we call the update method.
-});
+app.MapPut("/update",
+    (CoffeeModel newCoffee, ICoffeeService service) =>
+    {
+        var updatedCoffee = service.Update(newCoffee);
 
-app.MapDelete("/delete", (int id, ICoffeeService service) =>
-{
-    var result = service.Delete(id);
+        if (updatedCoffee is null) Results.NotFound("Coffee not found");
 
-    if (!result) return Results.BadRequest("Something went wrong");
+        return Results.Ok(updatedCoffee);
+    });
 
-    return Results.Ok(result); //this is how we call the delete method.
-});
+app.MapDelete("/delete",
+    (int id, ICoffeeService service) =>
+    {
+        var result = service.Delete(id);
+
+        if (!result) Results.BadRequest("Something went wrong");
+
+        return Results.Ok(result);
+    });
 
 app.Run();
